@@ -10,39 +10,44 @@ import Editor from './Editor';
 
 class Example extends React.Component {
   state = {
-    graphqlUrl: urlJoin(GRAPHQL_HOST, GRAPHQL_BASEPATH),
+    graphqlUrl: 'https://graphql-pokemon.now.sh/',
     resolvers: dedent`
       {
-        Estate: {
+        Pokemon: {
           dependencies: {
-            myCustom: \`
-              fragment _ on Estate {
-                id
-                projectType
+            numberOfEvolutions: \`
+              fragment _ on Pokemon {
+                evolutions {
+                  id
+                }
               }
-            \`,
+            \`
           },
           resolvers: {
-            myCustom: (estate) => {
-              return estate.projectType;
+            numberOfEvolutions: (pokemon) => {
+              return pokemon.evolutions.length;
             },
           },
         },
-        Item: {
-          directField: (item) => {
-            return 'Without';
-          },
+        PokemonAttack: {
+          withoutDependencies: () => 'No dependencies',
         },
       }
     `,
     query: dedent`
-      query Estate {
-        estate(id: 1234) {
+      {
+        pokemon(name: "Pikachu") {
           id
-          myCustom @client(type: Estate)
-          items {
-            id
-            directField @client(type: Item)
+          number
+          name
+          numberOfEvolutions @client(type: Pokemon)
+          attacks {
+            withoutDependencies @client(type: PokemonAttack)
+            special {
+              name
+              type
+              damage
+            }
           }
         }
       }
