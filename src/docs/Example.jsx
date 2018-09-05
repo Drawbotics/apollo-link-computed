@@ -2,15 +2,17 @@ import React from 'react';
 import { ApolloProvider, Query } from "react-apollo";
 import gql from 'graphql-tag';
 import urlJoin from 'url-join';
+import dedent from 'dedent';
 
 import { createClient, GRAPHQL_BASEPATH, GRAPHQL_HOST } from './apollo-client';
+import Editor from './Editor';
 
 
 class Example extends React.Component {
   state = {
     graphqlUrl: urlJoin(GRAPHQL_HOST, GRAPHQL_BASEPATH),
-    resolvers: `
-      ({
+    resolvers: dedent`
+      {
         Estate: {
           dependencies: {
             myCustom: \`
@@ -31,9 +33,9 @@ class Example extends React.Component {
             return 'Without';
           },
         },
-      })
+      }
     `,
-    query: `
+    query: dedent`
       query Estate {
         estate(id: 1234) {
           id
@@ -55,7 +57,14 @@ class Example extends React.Component {
         <Query
           query={gql`${query}`}>
           {({ data, loading }) => (
-            <pre>{loading ? 'Loading' : JSON.stringify(data, null, 2)}</pre>
+            <Editor
+              graphqlUrl={graphqlUrl}
+              query={query}
+              resolvers={resolversStr}
+              result={loading ? 'Loading' : JSON.stringify(data, null, 2)}
+              onChangeUrl={(graphqlUrl) => this.setState({ graphqlUrl })}
+              onChangeQuery={(query) => this.setState({ query })}
+              onChangeResolvers={(resolvers) => this.setState({ resolvers })} />
           )}
         </Query>
       </ApolloProvider>
