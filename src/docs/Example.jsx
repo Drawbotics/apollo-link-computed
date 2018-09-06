@@ -8,6 +8,23 @@ import { createClient, GRAPHQL_BASEPATH, GRAPHQL_HOST } from './apollo-client';
 import Editors from './Editors';
 
 
+function getResult(loading, data, error, graphqlError) {
+  if (loading) {
+    return 'Loading...';
+  }
+  if (error) {
+    return error;
+  }
+  if (graphqlError) {
+    return graphqlError.message;
+  }
+  if (data == null) {
+    return '';
+  }
+  return JSON.stringify(data, null, 2);
+}
+
+
 class Example extends React.Component {
   state = {
     graphqlUrl: 'https://graphql-pokemon.now.sh/',
@@ -38,16 +55,10 @@ class Example extends React.Component {
       {
         pokemon(name: "Pikachu") {
           id
-          number
           name
           numberOfEvolutions @client(type: Pokemon)
           attacks {
             withoutDependencies @client(type: PokemonAttack)
-            special {
-              name
-              type
-              damage
-            }
           }
         }
       }
@@ -55,18 +66,26 @@ class Example extends React.Component {
   };
   render() {
     const { query, resolvers: resolversStr, graphqlUrl } = this.state;
-    const resolvers = eval(`(${resolversStr})`);
+    let resolvers;
+    let error = null;
+    try {
+      resolvers = eval(`(${resolversStr})`);
+    }
+    catch (err) {
+      resolvers = {};
+      error = err.stack;
+    }
     const client = createClient(graphqlUrl, resolvers);
     return (
       <ApolloProvider client={client}>
         <Query
           query={gql`${query}`}>
-          {({ data, loading }) => (
+          {({ data, loading, error: graphqlError }) => (
             <Editors
               graphqlUrl={graphqlUrl}
               query={query}
               resolvers={resolversStr}
-              result={loading ? 'Loading' : JSON.stringify(data, null, 2)}
+              result={getResult(loading, data, error, graphqlError)}
               onChangeUrl={(graphqlUrl) => this.setState({ graphqlUrl })}
               onChangeQuery={(query) => this.setState({ query })}
               onChangeResolvers={(resolvers) => this.setState({ resolvers })} />

@@ -14,7 +14,7 @@ import 'codemirror/theme/material.css';
 const styles = StyleSheet.create({
   editors: {
     width: '100%',
-    border: '1px solid rgba(0, 0, 0, 0.5)',
+    border: '1px solid rgba(0, 0, 0, 1)',
     overflow: 'hidden',
     borderRadius: 5,
     position: 'relative',
@@ -44,15 +44,24 @@ const styles = StyleSheet.create({
     color: 'rgba(227, 232, 232, 1)',
     letterSpacing: '0.05em',
   },
-  pane: {
+  dividedPaneContainer: {
+    position: 'relative',
     width: '100%',
     height: 500,
     background: '#1C262A',
-    borderTop: '1px solid rgba(0, 0, 0, 0.5)',
-    display: 'none',
+  },
+  pane: {
+    position: 'absolute',
+    borderTop: '1px solid rgba(0, 0, 0, 1)',
+    height: 500,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0,
   },
   visiblePane: {
-    display: 'block',
+    opacity: 1,
   },
   editorSelector: {
     position: 'absolute',
@@ -107,15 +116,30 @@ class Editors extends React.Component {
       lineNumbers: true,
       mode: 'javascript',
       theme: 'material',
+      readOnly: 'nocursor',
     });
-    this.resultPaneEditor.getDoc().setValue(result);
+    this.resultPaneEditor.getDoc().setValue(result != null ? result : '');
+    this.resolversPaneEditor.on('change', (editor, event) => {
+      if (event.origin !== 'setValue') {
+        onChangeResolvers(editor.getDoc().getValue());
+      }
+    });
+    this.queryPaneEditor.on('change', (editor, event) => {
+      if (event.origin !== 'setValue') {
+        onChangeQuery(editor.getDoc().getValue());
+      }
+    });
   }
 
   componentDidUpdate() {
     const { resolvers, query, result } = this.props;
-    this.resolversPaneEditor.getDoc().setValue(resolvers);
-    this.queryPaneEditor.getDoc().setValue(query);
-    this.resultPaneEditor.getDoc().setValue(result);
+    if (this.resolversPaneEditor.getDoc().getValue() !== resolvers) {
+      this.resolversPaneEditor.getDoc().setValue(resolvers);
+    }
+    if (this.queryPaneEditor.getDoc().getValue() !== query) {
+      this.queryPaneEditor.getDoc().setValue(query);
+    }
+    this.resultPaneEditor.getDoc().setValue(result != null ? result : '');
   }
 
   render() {
@@ -134,11 +158,6 @@ class Editors extends React.Component {
             className={css(styles.editorOption, activeEditor === 'resolvers' && styles.activeOption)}>
             Resolvers
           </div>
-          <div
-            onClick={() => this.setState({ activeEditor: 'result' })}
-            className={css(styles.editorOption, activeEditor === 'result' && styles.activeOption)}>
-            Result
-          </div>
         </div>
         <div className={css(styles.inputContainer)}>
           <input
@@ -148,13 +167,15 @@ class Editors extends React.Component {
             placeholder="http://localhost/api/graphql"
             type="text" />
         </div>
-        <div className={css(styles.pane, activeEditor === 'query' && styles.visiblePane)}>
-          <textarea ref={(ref) => this.queryPane = ref} />
+        <div className={css(styles.dividedPaneContainer)}>
+          <div className={css(styles.pane, activeEditor === 'query' && styles.visiblePane)}>
+            <textarea ref={(ref) => this.queryPane = ref} />
+          </div>
+          <div className={css(styles.pane, activeEditor === 'resolvers' && styles.visiblePane)}>
+            <textarea ref={(ref) => this.resolversPane = ref} />
+          </div>
         </div>
-        <div className={css(styles.pane, activeEditor === 'resolvers' && styles.visiblePane)}>
-          <textarea ref={(ref) => this.resolversPane = ref} />
-        </div>
-        <div className={(css(styles.pane, activeEditor === 'result' && styles.visiblePane))}>
+        <div className={css(styles.pane, styles.visiblePane)} style={{ position: 'relative' }}>
           <textarea ref={(ref) => this.resultPane = ref} />
         </div>
       </div>
