@@ -146,7 +146,7 @@ $ git clone https://github.com/Drawbotics/apollo-link-computed
 $ npm run docs:serve
 ```
 
-Then, go to the shown url (by default `http://localhost:8080` and you'll see the interactive example. You can use that as a dev environment.
+Then, go to the shown url (by default `http://localhost:8080`) and you'll see the interactive example. You can use that as a dev environment.
 
 ## License
 

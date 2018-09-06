@@ -8,10 +8,16 @@
     "type": "git",
     "url": "https://github.com/Drawbotics/apollo-link-computed"
   },
-  "main": "index.js",
+  "main": "dist/ApolloLinkComputed.js",
+  "module": "lib/index.js",
   "scripts": {
+    "clean": "rimraf dist && rimraf lib",
     "docs:serve": "rdw serve --port 8080 DOCS.mdx",
-    "docs:build": "rdw build DOCS.mdx --out-dir docs"
+    "docs:build": "rdw build DOCS.mdx --out-dir docs",
+    "build:umd": "NODE_ENV=production webpack --config webpack.config.js",
+    "build:module": "NODE_ENV=production babel src --ignore src/docs/ --out-dir lib/",
+    "build": "npm run clean && npm run build:umd && npm run build:module",
+    "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "apollo-link": "^1.0.0"
@@ -23,10 +29,14 @@
     "graphql-tools": "^3.1.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
     "aphrodite-jss": "^2.1.0",
     "apollo-boost": "^0.1.15",
     "apollo-link": "^1.2.2",
     "apollo-link-context": "^1.0.8",
+    "better-webpack-progress": "^1.1.0",
     "codemirror": "^5.40.0",
     "codemirror-graphql": "^0.6.12",
     "dedent": "^0.7.0",
@@ -35,6 +45,10 @@
     "graphql-tag": "^2.9.2",
     "react": "^16.4.2",
     "react-apollo": "^2.1.11",
-    "react-display-window": "^1.1.2"
+    "react-display-window": "^1.1.2",
+    "rimraf": "^2.6.2",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0",
+    "webpack-stylish": "^0.1.8"
   }
 }
