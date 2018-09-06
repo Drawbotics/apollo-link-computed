@@ -133,6 +133,58 @@ class MyComponent extends React.Component {
 }
 ```
 
+## Utils
+
+An utility function to merge resolvers is also provided in case you spread your resolvers over multiple files. For example:
+
+```javascript
+// feature/resolvers.js
+export default {
+  Type: {
+    dependencies: {
+    },
+    resolvers: {
+      hello: () => 'Hello',
+    },
+  }
+};
+
+// another-feature/resolvers.js
+export default {
+  Type: {
+    dependencies: {
+    },
+    resolvers: {
+      world: () => 'World',
+    },
+  }
+};
+
+// resolvers.js
+import { mergeResolvers } from 'apollo-link-computed';
+import featureResolvers from './feature/resolvers';
+import anotherFeatureResolvers from './another-feature/resolvers';
+
+export default mergeResolvers(
+  featureResolvers,
+  anotherFeatureResolvers
+);
+
+// The final result would be:
+{
+  Type: {
+    dependencies: {
+    },
+    resolvers: {
+      hello: () => 'Hello',
+      world: () => 'World',
+    },
+  }
+}
+```
+
+It will also throw an error if trying to merge two keys with the same name in the same type.
+
 ## Contributing
 
 Everyone is welcome to contribute with issues, feature requests or pull requests.

@@ -100,3 +100,5 @@ export function withClientState(clientStateConfig = { resolvers: {}, defaults: {
 
   return new DomainLink();
 }
+
+export mergeResolvers from './merge-resolvers';
