@@ -10,7 +10,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "docs:serve": "rdw serve --port 8080 DOCS.mdx"
   },
   "peerDependencies": {
     "apollo-link": "^1.0.0"
@@ -34,6 +34,6 @@
     "graphql-tag": "^2.9.2",
     "react": "^16.4.2",
     "react-apollo": "^2.1.11",
-    "react-display-window": "^1.1.1"
+    "react-display-window": "^1.1.2"
   }
 }

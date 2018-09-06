@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
     border: '1px solid rgba(0, 0, 0, 0.5)',
     overflow: 'hidden',
     borderRadius: 5,
+    position: 'relative',
     '& .CodeMirror': {
       fontFamily: '"Fira Code", "monaco", monospaced',
       height: '100%',
@@ -24,14 +25,11 @@ const styles = StyleSheet.create({
       lineHeight: '1.8',
     },
     '& .CodeMirror-linenumber': {
-      paddingLeft: 8,
-      paddingRight: 20,
+      paddingLeft: 16,
+      paddingRight: 12,
     },
     '& .CodeMirror-gutters': {
-      background: 'rgba(0, 0, 0, 0.4) !important',
-    },
-    '& .CodeMirror-lines': {
-      marginLeft: 8,
+      background: '#101518 !important',
     },
   },
   inputContainer: {
@@ -46,46 +44,65 @@ const styles = StyleSheet.create({
     color: 'rgba(227, 232, 232, 1)',
     letterSpacing: '0.05em',
   },
-  panesContainer: {
-    width: '100%',
-    height: 500,
-    background: '#1C262A',
-    borderTop: '1px solid rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-  },
   pane: {
-    height: '100%',
-    borderRight: '1px solid rgba(0, 0, 0, 0.5)',
-    flex: 1,
-    '&:last-of-type': {
-      border: 0,
-    },
-  },
-  resultContainer: {
     width: '100%',
     height: 500,
     background: '#1C262A',
     borderTop: '1px solid rgba(0, 0, 0, 0.5)',
-  }
+    display: 'none',
+  },
+  visiblePane: {
+    display: 'block',
+  },
+  editorSelector: {
+    position: 'absolute',
+    display: 'flex',
+    right: 8,
+    top: 60,
+    zIndex: 999,
+    borderRadius: '1px solid rgba(0, 0, 0, 0.5)',
+    boxShadow: '0 2px 3px rgba(0, 0, 0, 0.3)',
+    borderRadius: 5,
+    fontSize: '0.8em',
+    overflow: 'hidden',
+  },
+  editorOption: {
+    padding: 8,
+    textTransform: 'uppercase',
+    background: 'rgba(255, 255, 255, 0.4)',
+    color: 'rgba(0, 0, 0, 0.7)',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease-in-out',
+    '&:hover': {
+      background: 'rgba(255, 255, 255, 0.6)',
+    }
+  },
+  activeOption: {
+    background: 'rgba(255, 255, 255, 0.6)',
+  },
 });
 
 
 class Editors extends React.Component {
 
+  state = {
+    activeEditor: 'query',
+  };
+
   componentDidMount() {
     const { resolvers, query, result, onChangeResolvers, onChangeQuery } = this.props;
-    this.leftPaneEditor = CodeMirror.fromTextArea(this.leftPane, {
+    this.resolversPaneEditor = CodeMirror.fromTextArea(this.resolversPane, {
       lineNumbers: true,
       mode: 'javascript',
       theme: 'material',
     });
-    this.leftPaneEditor.getDoc().setValue(resolvers);
-    this.rightPaneEditor = CodeMirror.fromTextArea(this.rightPane, {
+    this.resolversPaneEditor.getDoc().setValue(resolvers);
+    this.queryPaneEditor = CodeMirror.fromTextArea(this.queryPane, {
       lineNumbers: true,
       mode: 'graphql',
       theme: 'material',
     });
-    this.rightPaneEditor.getDoc().setValue(query);
+    this.queryPaneEditor.getDoc().setValue(query);
     this.resultPaneEditor = CodeMirror.fromTextArea(this.resultPane, {
       lineNumbers: true,
       mode: 'javascript',
@@ -96,15 +113,33 @@ class Editors extends React.Component {
 
   componentDidUpdate() {
     const { resolvers, query, result } = this.props;
-    this.leftPaneEditor.getDoc().setValue(resolvers);
-    this.rightPaneEditor.getDoc().setValue(query);
+    this.resolversPaneEditor.getDoc().setValue(resolvers);
+    this.queryPaneEditor.getDoc().setValue(query);
     this.resultPaneEditor.getDoc().setValue(result);
   }
 
   render() {
     const { graphqlUrl, onChangeUrl } = this.props;
+    const { activeEditor } = this.state;
     return (
       <div className={css(styles.editors)}>
+        <div className={css(styles.editorSelector)}>
+          <div
+            onClick={() => this.setState({ activeEditor: 'query' })}
+            className={css(styles.editorOption, activeEditor === 'query' && styles.activeOption)}>
+            Query
+          </div>
+          <div
+            onClick={() => this.setState({ activeEditor: 'resolvers' })}
+            className={css(styles.editorOption, activeEditor === 'resolvers' && styles.activeOption)}>
+            Resolvers
+          </div>
+          <div
+            onClick={() => this.setState({ activeEditor: 'result' })}
+            className={css(styles.editorOption, activeEditor === 'result' && styles.activeOption)}>
+            Result
+          </div>
+        </div>
         <div className={css(styles.inputContainer)}>
           <input
             value={graphqlUrl}
@@ -113,15 +148,13 @@ class Editors extends React.Component {
             placeholder="http://localhost/api/graphql"
             type="text" />
         </div>
-        <div className={css(styles.panesContainer)}>
-          <div className={css(styles.pane)}>
-            <textarea ref={(ref) => this.leftPane = ref} />
-          </div>
-          <div className={css(styles.pane)}>
-            <textarea ref={(ref) => this.rightPane = ref} />
-          </div>
+        <div className={css(styles.pane, activeEditor === 'query' && styles.visiblePane)}>
+          <textarea ref={(ref) => this.queryPane = ref} />
         </div>
-        <div className={(css(styles.resultContainer))}>
+        <div className={css(styles.pane, activeEditor === 'resolvers' && styles.visiblePane)}>
+          <textarea ref={(ref) => this.resolversPane = ref} />
+        </div>
+        <div className={(css(styles.pane, activeEditor === 'result' && styles.visiblePane))}>
           <textarea ref={(ref) => this.resultPane = ref} />
         </div>
       </div>
