@@ -1,8 +1,6 @@
 import { checkDocument, removeDirectivesFromDocument } from 'apollo-utilities';
 import cloneDeep from 'fclone';
-import get from 'lodash/get';
-import gql from 'graphql-tag';
-import fgql from 'fraql';
+import gql from 'fraql';
 
 
 const removedCache = new Map();
@@ -27,13 +25,15 @@ function addDependenciesToSelectionSet(selectionSet, dependencies) {
     const typeArg = clientDirective.arguments.find((arg) => arg.name.value === 'type');
     const type = typeArg.value.value;
     const selectionName = selection.name.value;
-    const directiveDependencies = get(dependencies, [type, selectionName], null);
+    const directiveDependencies = dependencies
+      && dependencies[type]
+      && dependencies[type][selectionName] || null;
 
     if (directiveDependencies == null) {
       return;
     }
 
-    const dependenciesFragmentDoc = fgql`${directiveDependencies}`;
+    const dependenciesFragmentDoc = gql`${directiveDependencies}`;
     const dependenciesFragment = dependenciesFragmentDoc.definitions[0];
     delete dependenciesFragment.name;
     extraSelections.push(dependenciesFragment);

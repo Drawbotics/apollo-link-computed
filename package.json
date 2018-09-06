@@ -25,6 +25,7 @@
   "dependencies": {
     "apollo-utilities": "^1.0.20",
     "fclone": "^1.0.11",
+    "fraql": "^1.1.1",
     "graphql-anywhere": "^4.1.18",
     "graphql-tools": "^3.1.1"
   },
@@ -40,12 +41,10 @@
     "codemirror": "^5.40.0",
     "codemirror-graphql": "^0.6.12",
     "dedent": "^0.7.0",
-    "fraql": "^1.1.1",
     "graphql": "^0.13.2",
-    "graphql-tag": "^2.9.2",
     "react": "^16.4.2",
     "react-apollo": "^2.1.11",
-    "react-display-window": "^1.1.2",
+    "react-display-window": "^2.0.0",
     "rimraf": "^2.6.2",
     "webpack": "^4.17.2",
     "webpack-cli": "^3.1.0",
