@@ -5,7 +5,7 @@ import urlJoin from 'url-join';
 import dedent from 'dedent';
 
 import { createClient, GRAPHQL_BASEPATH, GRAPHQL_HOST } from './apollo-client';
-import Editor from './Editor';
+import Editors from './Editors';
 
 
 class Example extends React.Component {
@@ -62,7 +62,7 @@ class Example extends React.Component {
         <Query
           query={gql`${query}`}>
           {({ data, loading }) => (
-            <Editor
+            <Editors
               graphqlUrl={graphqlUrl}
               query={query}
               resolvers={resolversStr}

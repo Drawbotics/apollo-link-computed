@@ -34,99 +34,36 @@ const styles = StyleSheet.create({
       marginLeft: 8,
     },
   },
-  inputContainer: {
-    width: '100%',
-  },
-  input: {
-    width: '100%',
-    padding: '16px',
-    background: '#1C262A',
-    border: 'none',
-    outline: '0 !important',
-    color: 'rgba(227, 232, 232, 1)',
-    letterSpacing: '0.05em',
-  },
-  panesContainer: {
-    width: '100%',
-    height: 500,
-    background: '#1C262A',
-    borderTop: '1px solid rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-  },
-  pane: {
-    height: '100%',
-    borderRight: '1px solid rgba(0, 0, 0, 0.5)',
-    flex: 1,
-    '&:last-of-type': {
-      border: 0,
-    },
-  },
-  resultContainer: {
-    width: '100%',
-    height: 500,
-    background: '#1C262A',
-    borderTop: '1px solid rgba(0, 0, 0, 0.5)',
-  }
 });
 
 
 class Editor extends React.Component {
 
   componentDidMount() {
-    const { resolvers, query, result, onChangeResolvers, onChangeQuery } = this.props;
-    this.leftPaneEditor = CodeMirror.fromTextArea(this.leftPane, {
+    const { value } = this.props;
+    this.editor = CodeMirror.fromTextArea(this.textArea, {
       lineNumbers: true,
       mode: 'javascript',
       theme: 'material',
+      readOnly: true,
     });
-    this.leftPaneEditor.getDoc().setValue(resolvers);
-    this.rightPaneEditor = CodeMirror.fromTextArea(this.rightPane, {
-      lineNumbers: true,
-      mode: 'graphql',
-      theme: 'material',
-    });
-    this.rightPaneEditor.getDoc().setValue(query);
-    this.resultPaneEditor = CodeMirror.fromTextArea(this.resultPane, {
-      lineNumbers: true,
-      mode: 'javascript',
-      theme: 'material',
-    });
-    this.resultPaneEditor.getDoc().setValue(result);
+    this.editor.getDoc().setValue(result);
   }
 
   componentDidUpdate() {
-    const { resolvers, query, result } = this.props;
-    this.leftPaneEditor.getDoc().setValue(resolvers);
-    this.rightPaneEditor.getDoc().setValue(query);
-    this.resultPaneEditor.getDoc().setValue(result);
+    const { value} = this.props;
+    this.editor.getDoc().setValue(value);
   }
 
   render() {
     const { graphqlUrl, onChangeUrl } = this.props;
     return (
       <div className={css(styles.editor)}>
-        <div className={css(styles.inputContainer)}>
-          <input
-            value={graphqlUrl}
-            onChange={(e) => onChangeUrl(e.target.value)}
-            className={css(styles.input)}
-            placeholder="http://localhost/api/graphql"
-            type="text" />
-        </div>
-        <div className={css(styles.panesContainer)}>
-          <div className={css(styles.pane)}>
-            <textarea ref={(ref) => this.leftPane = ref} />
-          </div>
-          <div className={css(styles.pane)}>
-            <textarea ref={(ref) => this.rightPane = ref} />
-          </div>
-        </div>
-        <div className={(css(styles.resultContainer))}>
-          <textarea ref={(ref) => this.resultPane = ref} />
-        </div>
+        <textarea ref={(ref) => this.textArea = ref} />
       </div>
     );
   }
+
 }
 
 
