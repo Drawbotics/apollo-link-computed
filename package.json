@@ -10,7 +10,8 @@
   },
   "main": "index.js",
   "scripts": {
-    "docs:serve": "rdw serve --port 8080 DOCS.mdx"
+    "docs:serve": "rdw serve --port 8080 DOCS.mdx",
+    "docs:build": "rdw build DOCS.mdx --out-dir docs"
   },
   "peerDependencies": {
     "apollo-link": "^1.0.0"

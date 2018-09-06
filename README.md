@@ -1,5 +1,7 @@
 # Apollo Link Computed
 
+[Interactive Example]()
+
 With `apollo-link-computed` it's possible to have computed properties in GraphQL results in a predictable way. This behaves like an extension to [apollo-link-state](https://github.com/apollographql/apollo-link-state) to the point that it's totally compatible with it.
 
 This library allows you to create local attributes in your GraphQL results in the same way as with [apollo-link-state](https://github.com/apollographql/apollo-link-state) but making sure you have all the data necessary for it. Basically, it solves the following problem:
@@ -134,6 +136,17 @@ class MyComponent extends React.Component {
 ## Contributing
 
 Everyone is welcome to contribute with issues, feature requests or pull requests.
+
+## Development
+
+Clone the repo and run the documentation tool:
+
+```bash
+$ git clone https://github.com/Drawbotics/apollo-link-computed
+$ npm run docs:serve
+```
+
+Then, go to the shown url (by default `http://localhost:8080` and you'll see the interactive example. You can use that as a dev environment.
 
 ## License
 
