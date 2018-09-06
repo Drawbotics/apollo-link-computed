@@ -1,6 +1,6 @@
 # Apollo Link Computed
 
-[Interactive Example]()
+[Interactive Example](https://drawbotics.github.io/apollo-link-computed/)
 
 With `apollo-link-computed` it's possible to have computed properties in GraphQL results in a predictable way. This behaves like an extension to [apollo-link-state](https://github.com/apollographql/apollo-link-state) to the point that it's totally compatible with it.
 
