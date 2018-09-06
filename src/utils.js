@@ -8,7 +8,6 @@ const removedCache = new Map();
 
 function addDependenciesToSelectionSet(selectionSet, dependencies) {
   const extraSelections = [];
-
   selectionSet.selections.forEach((selection) => {
     if (selection == null || selection.kind !== 'Field' || selection.directives == null) {
       return;
@@ -23,6 +22,11 @@ function addDependenciesToSelectionSet(selectionSet, dependencies) {
     }
 
     const typeArg = clientDirective.arguments.find((arg) => arg.name.value === 'type');
+
+    if ( ! typeArg) {
+      return;
+    }
+
     const type = typeArg.value.value;
     const selectionName = selection.name.value;
     const directiveDependencies = dependencies
