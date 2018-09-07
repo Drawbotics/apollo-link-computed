@@ -65,9 +65,10 @@ class Example extends React.Component {
     `,
   };
   render() {
-    const { query, resolvers: resolversStr, graphqlUrl } = this.state;
+    const { query: queryStr, resolvers: resolversStr, graphqlUrl } = this.state;
     let resolvers;
     let error = null;
+    let query;
     try {
       resolvers = eval(`(${resolversStr})`);
     }
@@ -75,15 +76,30 @@ class Example extends React.Component {
       resolvers = {};
       error = err.stack;
     }
+    try {
+      query = gql`${queryStr}`;
+    }
+    catch (err) {
+      error = err.stack;
+      query = gql`
+        {
+          __schema {
+            types {
+              name
+            }
+          }
+        }
+      `;
+    }
     const client = createClient(graphqlUrl, resolvers);
     return (
       <ApolloProvider client={client}>
         <Query
-          query={gql`${query}`}>
+          query={query}>
           {({ data, loading, error: graphqlError }) => (
             <Editors
               graphqlUrl={graphqlUrl}
-              query={query}
+              query={queryStr}
               resolvers={resolversStr}
               result={getResult(loading, data, error, graphqlError)}
               onChangeUrl={(graphqlUrl) => this.setState({ graphqlUrl })}

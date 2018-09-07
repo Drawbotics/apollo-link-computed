@@ -104,12 +104,20 @@ class Editors extends React.Component {
       lineNumbers: true,
       mode: 'javascript',
       theme: 'material',
+      extraKeys: {
+        Tab: (cm) => cm.execCommand('indentMore'),
+        'Shift-Tab': (cm) => cm.execCommand('indentLess'),
+      },
     });
     this.resolversPaneEditor.getDoc().setValue(resolvers);
     this.queryPaneEditor = CodeMirror.fromTextArea(this.queryPane, {
       lineNumbers: true,
       mode: 'graphql',
       theme: 'material',
+      extraKeys: {
+        Tab: (cm) => cm.execCommand('indentMore'),
+        'Shift-Tab': (cm) => cm.execCommand('indentLess'),
+      },
     });
     this.queryPaneEditor.getDoc().setValue(query);
     this.resultPaneEditor = CodeMirror.fromTextArea(this.resultPane, {
