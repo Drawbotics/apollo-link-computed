@@ -403,13 +403,29 @@ function (_React$Component) {
       this.resolversPaneEditor = codemirror__WEBPACK_IMPORTED_MODULE_6___default.a.fromTextArea(this.resolversPane, {
         lineNumbers: true,
         mode: 'javascript',
-        theme: 'material'
+        theme: 'material',
+        extraKeys: {
+          Tab: function Tab(cm) {
+            return cm.execCommand('indentMore');
+          },
+          'Shift-Tab': function ShiftTab(cm) {
+            return cm.execCommand('indentLess');
+          }
+        }
       });
       this.resolversPaneEditor.getDoc().setValue(resolvers);
       this.queryPaneEditor = codemirror__WEBPACK_IMPORTED_MODULE_6___default.a.fromTextArea(this.queryPane, {
         lineNumbers: true,
         mode: 'graphql',
-        theme: 'material'
+        theme: 'material',
+        extraKeys: {
+          Tab: function Tab(cm) {
+            return cm.execCommand('indentMore');
+          },
+          'Shift-Tab': function ShiftTab(cm) {
+            return cm.execCommand('indentLess');
+          }
+        }
       });
       this.queryPaneEditor.getDoc().setValue(query);
       this.resultPaneEditor = codemirror__WEBPACK_IMPORTED_MODULE_6___default.a.fromTextArea(this.resultPane, {
@@ -547,6 +563,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Editors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Editors */ "../../src/docs/Editors.jsx");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _templateObject4() {
+  var data = _taggedTemplateLiteral(["\n        {\n          __schema {\n            types {\n              name\n            }\n          }\n        }\n      "]);
+
+  _templateObject4 = function _templateObject4() {
+    return data;
+  };
+
+  return data;
+}
+
 function _templateObject3() {
   var data = _taggedTemplateLiteral(["", ""]);
 
@@ -658,11 +684,12 @@ function (_React$Component) {
       var _this2 = this;
 
       var _this$state = this.state,
-          query = _this$state.query,
+          queryStr = _this$state.query,
           resolversStr = _this$state.resolvers,
           graphqlUrl = _this$state.graphqlUrl;
       var resolvers;
       var error = null;
+      var query;
 
       try {
         resolvers = eval("(".concat(resolversStr, ")"));
@@ -671,18 +698,25 @@ function (_React$Component) {
         error = err.stack;
       }
 
+      try {
+        query = graphql_tag__WEBPACK_IMPORTED_MODULE_2___default()(_templateObject3(), queryStr);
+      } catch (err) {
+        error = err.stack;
+        query = graphql_tag__WEBPACK_IMPORTED_MODULE_2___default()(_templateObject4());
+      }
+
       var client = Object(_apollo_client__WEBPACK_IMPORTED_MODULE_5__["createClient"])(graphqlUrl, resolvers);
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_apollo__WEBPACK_IMPORTED_MODULE_1__["ApolloProvider"], {
         client: client
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_apollo__WEBPACK_IMPORTED_MODULE_1__["Query"], {
-        query: graphql_tag__WEBPACK_IMPORTED_MODULE_2___default()(_templateObject3(), query)
+        query: query
       }, function (_ref) {
         var data = _ref.data,
             loading = _ref.loading,
             graphqlError = _ref.error;
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Editors__WEBPACK_IMPORTED_MODULE_6__["default"], {
           graphqlUrl: graphqlUrl,
-          query: query,
+          query: queryStr,
           resolvers: resolversStr,
           result: getResult(loading, data, error, graphqlError),
           onChangeUrl: function onChangeUrl(graphqlUrl) {
@@ -777,7 +811,7 @@ function createClient(url, resolvers) {
 /*!****************************************************************************!*\
   !*** /Users/lars/Development/JavaScript/apollo-link-computed/src/index.js ***!
   \****************************************************************************/
-/*! exports provided: withClientState */
+/*! exports provided: withClientState, mergeResolvers */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -788,6 +822,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var graphql_anywhere_lib_async__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! graphql-anywhere/lib/async */ "../graphql-anywhere/lib/async.js");
 /* harmony import */ var graphql_anywhere_lib_async__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(graphql_anywhere_lib_async__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils */ "../../src/utils.js");
+/* harmony import */ var _merge_resolvers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./merge-resolvers */ "../../src/merge-resolvers.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "mergeResolvers", function() { return _merge_resolvers__WEBPACK_IMPORTED_MODULE_4__["default"]; });
+
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -988,6 +1025,68 @@ function withClientState() {
   return new DomainLink();
 }
 
+
+
+/***/ }),
+
+/***/ "../../src/merge-resolvers.js":
+/*!**************************************************************************************!*\
+  !*** /Users/lars/Development/JavaScript/apollo-link-computed/src/merge-resolvers.js ***!
+  \**************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return mergeResolvers; });
+/* harmony import */ var lodash_mergeWith__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash/mergeWith */ "../lodash/mergeWith.js");
+/* harmony import */ var lodash_mergeWith__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash_mergeWith__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var fclone__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! fclone */ "../fclone/dist/fclone.js");
+/* harmony import */ var fclone__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fclone__WEBPACK_IMPORTED_MODULE_1__);
+
+
+
+function normalizeResolvers(resolvers) {
+  if (resolvers.dependencies != null && typeof resolvers.dependencies !== 'function') {
+    return resolvers;
+  }
+
+  return {
+    dependencies: {},
+    resolvers: resolvers
+  };
+}
+
+function mergeResolvers() {
+  for (var _len = arguments.length, resolvers = new Array(_len), _key = 0; _key < _len; _key++) {
+    resolvers[_key] = arguments[_key];
+  }
+
+  return resolvers.reduce(function (memo, resolvers) {
+    Object.keys(resolvers).forEach(function (type) {
+      var typeResolvers = fclone__WEBPACK_IMPORTED_MODULE_1___default()(normalizeResolvers(resolvers[type]));
+
+      if (memo[type] != null) {
+        lodash_mergeWith__WEBPACK_IMPORTED_MODULE_0___default()(memo[type].dependencies, typeResolvers.dependencies, function (objValue, srcValue, key, object) {
+          if (object.hasOwnProperty(key)) {
+            // Duplicated resolver function
+            throw new Error("Duplicated key \"".concat(key, "\" found when merging resolvers for type \"").concat(type, "\""));
+          }
+        });
+        lodash_mergeWith__WEBPACK_IMPORTED_MODULE_0___default()(memo[type].resolvers, typeResolvers.resolvers, function (objValue, srcValue, key, object) {
+          if (object.hasOwnProperty(key)) {
+            // Duplicated resolver function
+            throw new Error("Duplicated key \"".concat(key, "\" found when merging resolvers for type \"").concat(type, "\""));
+          }
+        });
+      } else {
+        memo[type] = typeResolvers;
+      }
+    });
+    return memo;
+  }, {});
+}
+
 /***/ }),
 
 /***/ "../../src/utils.js":
@@ -1054,6 +1153,11 @@ function addDependenciesToSelectionSet(selectionSet, dependencies) {
     var typeArg = clientDirective.arguments.find(function (arg) {
       return arg.name.value === 'type';
     });
+
+    if (!typeArg) {
+      return;
+    }
+
     var type = typeArg.value.value;
     var selectionName = selection.name.value;
     var directiveDependencies = dependencies && dependencies[type] && dependencies[type][selectionName] || null;
@@ -43994,6 +44098,56 @@ var merge = createAssigner(function(object, source, srcIndex) {
 });
 
 module.exports = merge;
+
+
+/***/ }),
+
+/***/ "../lodash/mergeWith.js":
+/*!******************************!*\
+  !*** ../lodash/mergeWith.js ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseMerge = __webpack_require__(/*! ./_baseMerge */ "../lodash/_baseMerge.js"),
+    createAssigner = __webpack_require__(/*! ./_createAssigner */ "../lodash/_createAssigner.js");
+
+/**
+ * This method is like `_.merge` except that it accepts `customizer` which
+ * is invoked to produce the merged values of the destination and source
+ * properties. If `customizer` returns `undefined`, merging is handled by the
+ * method instead. The `customizer` is invoked with six arguments:
+ * (objValue, srcValue, key, object, source, stack).
+ *
+ * **Note:** This method mutates `object`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Object
+ * @param {Object} object The destination object.
+ * @param {...Object} sources The source objects.
+ * @param {Function} customizer The function to customize assigned values.
+ * @returns {Object} Returns `object`.
+ * @example
+ *
+ * function customizer(objValue, srcValue) {
+ *   if (_.isArray(objValue)) {
+ *     return objValue.concat(srcValue);
+ *   }
+ * }
+ *
+ * var object = { 'a': [1], 'b': [2] };
+ * var other = { 'a': [3], 'b': [4] };
+ *
+ * _.mergeWith(object, other, customizer);
+ * // => { 'a': [1, 3], 'b': [2, 4] }
+ */
+var mergeWith = createAssigner(function(object, source, srcIndex, customizer) {
+  baseMerge(object, source, srcIndex, customizer);
+});
+
+module.exports = mergeWith;
 
 
 /***/ }),
