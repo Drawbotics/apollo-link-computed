@@ -119,3 +119,10 @@ export function extractResolversAndDependencies(resolversAndDeps) {
   }, {});
   return result;
 }
+
+
+export function normalizeTypeDefs(typeDefs) {
+  return typeof typeDefs === 'string'
+    ? typeDefs
+    : typeDefs.map((typeDef) => typeDef.trim()).join('\n');
+}

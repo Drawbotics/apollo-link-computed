@@ -2,7 +2,13 @@ import { ApolloLink, Observable } from 'apollo-link';
 import { hasDirectives, getMainDefinition } from 'apollo-utilities';
 import * as Async from 'graphql-anywhere/lib/async';
 
-import { removeClientSetsFromDocument, capitalizeFirstLetter, extractResolversAndDependencies, addDependenciesToDocument } from './utils';
+import {
+  removeClientSetsFromDocument,
+  capitalizeFirstLetter,
+  extractResolversAndDependencies,
+  addDependenciesToDocument,
+  normalizeTypeDefs,
+} from './utils';
 
 
 const { graphql } = Async;
@@ -43,7 +49,7 @@ export function withClientState(clientStateConfig = { resolvers: {}, defaults: {
     cache.writeData({ data: defaults });
   }
 
-  class DomainLink extends ApolloLink {
+  class ComputedLink extends ApolloLink {
 
     writeDefaults() {
       if (cache && defaults) {
@@ -57,9 +63,7 @@ export function withClientState(clientStateConfig = { resolvers: {}, defaults: {
 
       if (typeDefs) {
         const directives = 'directive @client on FIELD';
-        const definition = typeof typeDefs === 'string'
-          ? typeDefs
-          : typeDefs.map((typeDef) => typeDef.trim()).join('\n');
+        const definition = normalizeTypeDefs(typeDefs);
 
         operation.setContext(({ schemas = [] }) => ({
           schemas: schemas.concat([{ definition, directives }]),
@@ -82,23 +86,40 @@ export function withClientState(clientStateConfig = { resolvers: {}, defaults: {
 
       const obs = serverQuery && forward ? forward(operation) : Observable.of({ data: {} });
 
-      return obs.flatMap(({ data, errors }) => {
-        return new Observable(async (observer) => {
-          const observerErrorHandler = observer.error.bind(observer);
-          const context = operation.getContext();
-          try {
-            const nextData = await graphql(resolver, query, data, context, operation.variables, { fragmentMatcher });
-            observer.next({ data: nextData, errors });
-          }
-          catch (err) {
-            observerErrorHandler(err);
-          }
+      return new Observable((observer) => {
+        let complete = false;
+        let handlingNext = false;
+
+        obs.subscribe({
+          next: ({ data, errors }) => {
+            const observerErrorHandler = observer.error.bind(observer);
+            const context = operation.getContext();
+            handlingNext = true;
+            //data is from the server and provides the root value to this GraphQL resolution
+            //when there is no resolver, the data is taken from the context
+            graphql(resolver, query, data, context, operation.variables, { fragmentMatcher })
+              .then((nextData) => {
+                observer.next({ data: nextData, errors });
+                if (complete) {
+                  observer.complete();
+                }
+                handlingNext = false;
+              })
+              .catch(observerErrorHandler);
+          },
+          error: observer.error.bind(observer),
+          complete: () => {
+            if ( ! handlingNext) {
+              observer.complete();
+            }
+            complete = true;
+          },
         });
       });
     }
   }
 
-  return new DomainLink();
+  return new ComputedLink();
 }
 
 export mergeResolvers from './merge-resolvers';

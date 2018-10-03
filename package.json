@@ -1,6 +1,6 @@
 {
   "name": "apollo-link-computed",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Manage your application's state with Apollo!",
   "author": "Lorenzo Ruiz <lars.bs@hotmail.com>",
   "license": "MIT",
